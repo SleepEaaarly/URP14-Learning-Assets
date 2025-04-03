@@ -10,8 +10,10 @@ public class PixelizeFeature : ScriptableRendererFeature
     }
 
     [SerializeField]
-    private PixelizePassSettings pixelizePassSettings;
+    private PixelizePassSettings pixelizePassSettings = new PixelizePassSettings();
+
     private PixelizePass pixelizePass;
+    private RTHandle tmp_RT;
 
     /// <inheritdoc/>
     public override void Create()
@@ -31,7 +33,18 @@ public class PixelizeFeature : ScriptableRendererFeature
     }
 
     public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData) {
-        pixelizePass.Setup(pixelizePassSettings);
+        RenderTextureDescriptor descriptor = renderingData.cameraData.cameraTargetDescriptor;
+        descriptor.msaaSamples = 1;
+        descriptor.depthBufferBits = 0;
+        // TODO: downsample?
+        RenderingUtils.ReAllocateIfNeeded(ref tmp_RT, descriptor, FilterMode.Point, TextureWrapMode.Clamp, name: "_PixelRT");
+        pixelizePass.ConfigureClear(ClearFlag.All, Color.clear);
+
+        pixelizePass.Setup(pixelizePassSettings, renderer.cameraColorTargetHandle, tmp_RT);
+    }
+
+    protected override void Dispose(bool disposing) {
+        tmp_RT?.Release();
     }
 }
 
