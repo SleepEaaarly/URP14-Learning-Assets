@@ -6,8 +6,11 @@ using UnityEngine.Rendering.Universal;
 
 public class PixelizePass : ScriptableRenderPass
 {
-    public PixelizePass(PixelizeFeature.PixelizePassSettings settings) {
 
+    private int screenHeight;
+
+    public void Setup (PixelizeFeature.PixelizePassSettings settings) {
+        screenHeight = settings.screenHeight;
     }
 
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData) {

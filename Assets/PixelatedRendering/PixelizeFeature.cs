@@ -6,24 +6,32 @@ public class PixelizeFeature : ScriptableRendererFeature
 {
     [System.Serializable]
     public class PixelizePassSettings {
-        public RenderPassEvent renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
         public int screenHeight = 144;
     }
-    
-    PixelizePassSettings pixelizePassSettings;
-    PixelizePass m_ScriptablePass;
+
+    [SerializeField]
+    private PixelizePassSettings pixelizePassSettings;
+    private PixelizePass pixelizePass;
 
     /// <inheritdoc/>
     public override void Create()
     {
-        m_ScriptablePass = new PixelizePass(pixelizePassSettings);
+        pixelizePass = new PixelizePass();
+        pixelizePass.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
     }
 
     // Here you can inject one or multiple render passes in the renderer.
     // This method is called when setting up the renderer once per-camera.
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        renderer.EnqueuePass(m_ScriptablePass);
+#if UNITY_EDITOR
+        if (renderingData.cameraData.isSceneViewCamera) return;
+#endif
+        renderer.EnqueuePass(pixelizePass);
+    }
+
+    public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData) {
+        pixelizePass.Setup(pixelizePassSettings);
     }
 }
 
