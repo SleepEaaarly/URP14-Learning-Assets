@@ -33,13 +33,6 @@ public class PixelizeFeature : ScriptableRendererFeature
     }
 
     public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData) {
-        RenderTextureDescriptor descriptor = renderingData.cameraData.cameraTargetDescriptor;
-        descriptor.msaaSamples = 1;
-        descriptor.depthBufferBits = 0;
-        // TODO: downsample?
-        RenderingUtils.ReAllocateIfNeeded(ref tmp_RT, descriptor, FilterMode.Point, TextureWrapMode.Clamp, name: "_PixelRT");
-        pixelizePass.ConfigureClear(ClearFlag.All, Color.clear);
-
         pixelizePass.Setup(pixelizePassSettings, renderer.cameraColorTargetHandle, tmp_RT);
     }
 
